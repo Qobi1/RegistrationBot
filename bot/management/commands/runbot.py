@@ -5,7 +5,7 @@ from bot.views import *
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        TOKEN = ""
+        TOKEN = "5028779716:AAEWI_822MoMa8GKg2wADRNKkTBvI0eujA4"
         updater = Updater(TOKEN)
         updater.dispatcher.add_handler(CommandHandler('start', start))
         updater.dispatcher.add_handler(MessageHandler(Filters.text, received_message))

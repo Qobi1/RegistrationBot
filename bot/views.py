@@ -8,10 +8,10 @@ import xlwt
 REGIONS = ["Andijon 18-19 iyul", "Namangan 20-21 iyul", "Farg'ona 22-23 iyul", "Qoraqalpag'iston", "Xorazm 28-29 iyul", "Buxoro 7-8 avgust",
            "Navoiy 4-5 avgust", "Samarqand 8-9 avgust", "Jizzax 11-12 avgust", "Qashqadaryo 8-9 sentabr", "Surxondaryo 11-12 sentabr",
            "Sirdaryo 15-16 sentabr", "Toshkent viloyat 18-19 sentabr"]
-CHANNEL_TO_SEND_MESSAGE = -1001677490075
-# CHANNEL_TO_SEND_MESSAGE = -1001610436325
-CHANNELS = [("Innovatsiyalar Milliy ofisi", -1001296579695, 'https://t.me/milliyofis'), ("INNO Technopark", -1001530051962, "https://t.me/innotechnopark")]
-# CHANNELS = [("Test 1", -1001610436325, 'https://t.me/teeessttttt_1'), ("Test 2", -1001737589089, "https://t.me/test_22222222221")]
+# CHANNEL_TO_SEND_MESSAGE = -1001677490075
+CHANNEL_TO_SEND_MESSAGE = -1001610436325
+# CHANNELS = [("Innovatsiyalar Milliy ofisi", -1001296579695, 'https://t.me/milliyofis'), ("INNO Technopark", -1001530051962, "https://t.me/innotechnopark")]
+CHANNELS = [("Test 1", -1001610436325, 'https://t.me/teeessttttt_1'), ("Test 2", -1001737589089, "https://t.me/test_22222222221")]
 
 
 def start(update: Update, context: CallbackContext):
