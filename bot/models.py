@@ -14,7 +14,11 @@ class UserInformation(models.Model):
     project_name = models.CharField(max_length=256, null=True)
     description = models.TextField(null=True)
     file = models.FileField(null=True)
+    # created_at = models.DateTimeField(auto_now_add=True, null=True)
 
+    # class Meta:
+    #     abstract = True
+    #
 
 class Log(models.Model):
     user_id = models.BigIntegerField()

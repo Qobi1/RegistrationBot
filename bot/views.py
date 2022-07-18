@@ -5,6 +5,7 @@ from .models import *
 # Create your views here.
 import os
 import xlwt
+import re
 REGIONS = ["Andijon 18-19 iyul", "Namangan 20-21 iyul", "Farg'ona 22-23 iyul", "Qoraqalpag'iston", "Xorazm 28-29 iyul", "Buxoro 7-8 avgust",
            "Navoiy 4-5 avgust", "Samarqand 8-9 avgust", "Jizzax 11-12 avgust", "Qashqadaryo 8-9 sentabr", "Surxondaryo 11-12 sentabr",
            "Sirdaryo 15-16 sentabr", "Toshkent viloyat 18-19 sentabr"]
@@ -37,6 +38,7 @@ def start(update: Update, context: CallbackContext):
             log.save()
             return 0
         else:
+            print("Keldi")
             chnl_msg_id = update.message.reply_text(f"Assalomu alaykum {user.first_name}, botdan foydalanishdan oldin kanalarimizga obuna bo'lishingizni so'raymiz", reply_markup=InlineKeyboardMarkup(btn))
             log.user_id = user.id
             log.state = {'state': 0, 'chnl_msg_id': chnl_msg_id.message_id}
@@ -50,6 +52,10 @@ def received_message(update: Update, context: CallbackContext):
     user = update.effective_user
     msg = update.message.text
     log = Log.objects.filter(user_id=user.id).first()
+    if log is None:
+        log = Log()
+        log.state = {'state': 0}
+        log.user_id = user.id
     count = 0
     btn = []
     for i in CHANNELS:
@@ -80,18 +86,18 @@ def received_message(update: Update, context: CallbackContext):
         update.message.reply_text("Parol to'g'ri kritildi✅", reply_markup=keyboard_buttons(type='region'))
         update.message.reply_text("Quyidagilardan keragini tanlang👇")
         log.state['state'] = 22
-    elif log.state['state'] == 22:
+    elif log.state['state'] == 22 and msg in REGIONS:
         file = export_users_xls(msg)
         context.bot.send_document(chat_id=user.id, document=open(f'{file}', 'rb'))
-
+        os.remove(f"{file}")
+    elif log.state['state'] == 22 and msg not in REGIONS:
+        update.message.reply_text("Noto'g'ri hudud kritildi❌, pasda berilganlardan brini tanlang", reply_markup=keyboard_buttons(type='region'))
     elif log.state['state'] == 21 and msg != "parol":
         update.message.reply_text("Parol noto'gri❌, qayatadan urinib ko'ring")
     # End of admin panel
 
-
     if msg == "⬅️Orqaga":
         log.state['state'] -= 2
-
     log.save()
     # main part for registration
     if log.state['state'] == 0:
@@ -111,10 +117,14 @@ def received_message(update: Update, context: CallbackContext):
             log.state['full_name'] = msg
         log.state['state'] = 2
     elif log.state['state'] == 2:
-        update.message.reply_text("Yashash manzilingizni kriting", reply_markup=keyboard_buttons(type='orqaga'))
-        log.state['state'] = 3
+        pattern = "^(0[1-9]|[12][0-9]|3[01])[/](0[1-9]|1[012])[/](19|20)\d\d$"
         if msg != "⬅️Orqaga":
-            log.state['birthday'] = msg
+            if re.search(pattern, msg):
+                update.message.reply_text("Yashash manzilingizni kriting", reply_markup=keyboard_buttons(type='orqaga'))
+                log.state['state'] = 3
+                log.state['birthday'] = msg
+            else:
+                update.message.reply_text("Tug'ilgan sanangizni berilgan ko'rinishda kriting👇\n\n01/01/2001 (kun, oy, yil)")
     elif log.state['state'] == 3:
         update.message.reply_text("Telefon raqamingizni kriting\n\nMasalan: +99899123456789", reply_markup=keyboard_buttons(type='phone'))
         log.state['state'] = 4
@@ -143,9 +153,13 @@ def received_message(update: Update, context: CallbackContext):
     elif log.state['state'] == 8:
         update.message.reply_text("Faylni jo'nating❌")
     elif log.state['state'] == 9 and msg == "Ha":
-        context.bot.send_document(chat_id=CHANNEL_TO_SEND_MESSAGE, document=open(f"files/{log.state['filename']}", 'rb'), caption=f"🌐Viloyat: {log.state['region']}\n\n👤F.I.O: {log.state['full_name']}\n\n📞Raqami: {log.state['phone_number']}\n\n🔗Tug'ilgan sana: {log.state['birthday']}\n\n📍Yashash manzili: {log.state['location']}\n\n🏢Talim muassasasi: {log.state['education']}\n\n💼Loyiha nomi: {log.state['project_name']}")
+        context.bot.send_document(chat_id=CHANNEL_TO_SEND_MESSAGE, document=open(f"files/{log.state['filename']}", 'rb'), caption=f"🌐Viloyat: {log.state['region']}\n\n👤F.I.O: {log.state['full_name']}\n\n📞Raqami: {log.state['phone_number']}\n\n🔗Tug'ilgan sana: {log.state['birthday']}\n\n📍Yashash manzili: {log.state['location']}\n\n🏢Talim muassasasi: {log.state['education']}\n\n💼Loyiha nomi: {log.state['project_name']}\n\n✍Loyihani qisqacha mazmuni: {log.state['description']}")
         os.remove(f"files/{log.state['filename']}")
-        info = UserInformation()
+        if log.state['region'] == REGIONS[0]:
+            update.message.reply_text("Pasda berilgan kanalga obuna bo'lishingizni so'raymiz👇\n\n\nhttps://t.me/+D06Ds9jB38YxNmY6")
+        info = UserInformation.objects.filter(user_id=user.id).first()
+        if info is None:
+            info = UserInformation()
         info.user_id = user.id
         info.file = log.state['filename']
         info.region = log.state['region']
@@ -180,35 +194,6 @@ def received_contact(update: Update, context: CallbackContext):
     log.save()
 
 
-# def received_file(update: Update, context: CallbackContext):
-#     user = update.effective_user
-#     file = context.bot.get_file(update.message.document).download(timeout=100000)
-#     f = update.message.document.file_name
-#     print(f)
-#     log = Log.objects.filter(user_id=user.id).first()
-#     context.bot.send_document(chat_id=CHANNEL_TO_SEND_MESSAGE, document=open(f"{file}", 'rb'), caption=f"🌐Viloyat: {log.state['region']}\n👤F.I.O: {log.state['full_name']}\n📞Raqami: {log.state['phone_number']}\n🔗Tug'ilgan sana: {log.state['birthday']}\n📍Yashash manzili: {log.state['location']}\n🏢Talim muassasasi: {log.state['education']}\n💼Loyiha nomi: {log.state['project_name']}")
-#
-#     info = UserInformation.objects.filter(user_id=user.id).first()
-#     if info is None:
-#         info = UserInformation()
-#     if log.state['state'] == 8:
-#         result = f"""
-# 🌐Viloyat: {log.state['region']}\n\n
-# 👤F.I.O: {log.state['full_name']}\n\n
-# 🔗Tug'ilgan sana: {log.state['birthday']}\n\n
-# 📍Yashash manzili: {log.state['location']}\n\n
-# 📞Telefon raqam: {log.state['phone_number']}\n\n
-# 🏢Talim muassasasi: {log.state['education']}\n\n
-# 💼Loyiha nomi: {log.state['project_name']}\n\n
-# """
-#         update.message.reply_text(result)
-#         info.file = file
-#         info.user_id = user.id
-#         info.save()
-#         log.state['state'] = 9
-#         btn = [[KeyboardButton("Ha"), KeyboardButton("Yo'q")]]
-#         update.message.reply_text("Barcha malumotlar to'g'rimi", reply_markup=ReplyKeyboardMarkup(btn, resize_keyboard=True))
-#     log.save()
 def received_file(update: Update, context: CallbackContext):
     user = update.effective_user
     document = update.message.document
@@ -227,6 +212,7 @@ def received_file(update: Update, context: CallbackContext):
 📞Telefon raqam: {log.state['phone_number']}\n\n
 🏢Talim muassasasi: {log.state['education']}\n\n
 💼Loyiha nomi: {log.state['project_name']}\n\n
+✍Loyihani qisqacha mazmuni: {log.state['description']}\n\n
 """
         # update.message.reply_text(result)
         log.state['state'] = 9
@@ -252,14 +238,12 @@ def inline_handler(update: Update, context: CallbackContext):
             btn.append([InlineKeyboardButton(f"✅{i[0]}", callback_data=f"{i[1]}", url=f'{i[2]}')])
             count += 1
     btn.append([InlineKeyboardButton("✅Tekshirish", callback_data='checking')])
-    log.state['count'] = count
-    if log.state['count'] == 2 and log.state['state'] == 0:
+    if count == 2 and log.state['state'] == 0:
         context.bot.deleteMessage(chat_id=user.id, message_id=log.state['chnl_msg_id'])
         query.message.reply_text("Kerakli viloyatni tanlang", reply_markup=keyboard_buttons(type='region'))
-    elif log.state['state'] != 0 and log.state['count'] == 2:
+    elif log.state['state'] != 0 and count == 2:
         context.bot.deleteMessage(chat_id=user.id, message_id=log.state['chnl_msg_id'])
     else:
-        print("x")
         context.bot.deleteMessage(chat_id=user.id, message_id=log.state['chnl_msg_id'])
         chnl_msg_id = query.message.reply_text(f"Assalomu alaykum {user.first_name}, botdan foydalanishdan oldin kanalarimizga obuna bo'lishingizni so'raymiz", reply_markup=InlineKeyboardMarkup(btn))
         log.state['chnl_msg_id'] = chnl_msg_id.message_id
@@ -285,7 +269,7 @@ def export_users_xls(msg):
     # response = HttpResponse(content_type='application/ms-excel')
     # response['Content-Disposition'] = 'attachment; filename="users.xls"'
 
-    response = 'filename: users.xls'
+    response = f'{msg}.xls'
     wb = xlwt.Workbook(encoding='utf-8')
     ws = wb.add_sheet('Info')
 
