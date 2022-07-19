@@ -1,1 +1,1 @@
-web: gunicorn main.wsgi
+web: python manage.py runbot
