@@ -38,7 +38,6 @@ def start(update: Update, context: CallbackContext):
             log.save()
             return 0
         else:
-            print("Keldi")
             chnl_msg_id = update.message.reply_text(f"Assalomu alaykum {user.first_name}, botdan foydalanishdan oldin kanalarimizga obuna bo'lishingizni so'raymiz", reply_markup=InlineKeyboardMarkup(btn))
             log.user_id = user.id
             log.state = {'state': 0, 'chnl_msg_id': chnl_msg_id.message_id}
