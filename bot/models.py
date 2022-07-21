@@ -4,7 +4,7 @@ from django.db import models
 
 
 class UserInformation(models.Model):
-    user_id = models.BigIntegerField()
+    user_id = models.BigIntegerField(null=True)
     region = models.CharField(max_length=256, null=True)
     full_name = models.CharField(max_length=256, null=True)
     birthday = models.CharField(max_length=256, null=True)
@@ -16,9 +16,9 @@ class UserInformation(models.Model):
     file = models.FileField(null=True)
     # created_at = models.DateTimeField(auto_now_add=True, null=True)
 
-    # class Meta:
-    #     abstract = True
-    #
+    def __str__(self):
+        return self.full_name
+
 
 class Log(models.Model):
     user_id = models.BigIntegerField()

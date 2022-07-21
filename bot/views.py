@@ -108,24 +108,23 @@ def received_message(update: Update, context: CallbackContext):
             else:
                 update.message.reply_text("Quyidagilardan brini kriting👇", reply_markup=keyboard_buttons(type="region"))
         else:
-            update.message.reply_text("Familiya, ism, Sharifingizni kritinggg", reply_markup=ReplyKeyboardRemove())
+            update.message.reply_text("Familiya, ism, Sharifingizni kriting", reply_markup=ReplyKeyboardRemove())
             log.state['state'] = 1
     elif log.state['state'] == 1:
         update.message.reply_text("Tug'ilgan sanangizni kriting\n\nMasalan: 01/01/2001", reply_markup=keyboard_buttons(type='orqaga'))
+        log.state['state'] = 2
         if msg != "⬅️Orqaga":
             log.state['full_name'] = msg
-        log.state['state'] = 2
     elif log.state['state'] == 2:
         pattern = "^(0[1-9]|[12][0-9]|3[01])[/](0[1-9]|1[012])[/](19|20)\d\d$"
-        if msg != "⬅️Orqaga":
-            if re.search(pattern, msg):
-                update.message.reply_text("Yashash manzilingizni kriting", reply_markup=keyboard_buttons(type='orqaga'))
-                log.state['state'] = 3
-                log.state['birthday'] = msg
-            else:
-                update.message.reply_text("Tug'ilgan sanangizni berilgan ko'rinishda kriting👇\n\n01/01/2001 (kun, oy, yil)")
+        if re.search(pattern, msg):
+            log.state['state'] = 3
+            log.state['birthday'] = msg
+            update.message.reply_text("Yashash manzilingizni kriting", reply_markup=keyboard_buttons(type='orqaga'))
+        else:
+            update.message.reply_text("Tug'ilgan sanangizni berilgan ko'rinishda kriting👇\n\n01/01/2001 (kun, oy, yil)")
     elif log.state['state'] == 3:
-        update.message.reply_text("Telefon raqamingizni kriting\n\nMasalan: +99899123456789", reply_markup=keyboard_buttons(type='phone'))
+        update.message.reply_text("Telefon raqamingizni kriting\n\nMasalan: +998991234567", reply_markup=keyboard_buttons(type='phone'))
         log.state['state'] = 4
         if msg != "⬅️Orqaga":
             log.state['location'] = msg
@@ -152,7 +151,7 @@ def received_message(update: Update, context: CallbackContext):
     elif log.state['state'] == 8:
         update.message.reply_text("Faylni jo'nating❌")
     elif log.state['state'] == 9 and msg == "Ha":
-        context.bot.send_document(chat_id=CHANNEL_TO_SEND_MESSAGE, document=open(f"files/{log.state['filename']}", 'rb'), caption=f"🌐Viloyat: {log.state['region']}\n\n👤F.I.O: {log.state['full_name']}\n\n📞Raqami: {log.state['phone_number']}\n\n🔗Tug'ilgan sana: {log.state['birthday']}\n\n📍Yashash manzili: {log.state['location']}\n\n🏢Talim muassasasi: {log.state['education']}\n\n💼Loyiha nomi: {log.state['project_name']}\n\n✍Loyihani qisqacha mazmuni: {log.state['description']}")
+        context.bot.send_document(chat_id=CHANNEL_TO_SEND_MESSAGE, document=open(f"files/{log.state['filename']}", 'rb'), caption=f"🌐Viloyat: {log.state['region']}\n\n👤F.I.O: {log.state['full_name']}\n\n📞Raqami: {log.state['phone_number']}\n\n🔗Tug'ilgan sana: {log.state['birthday']}\n\n📍Yashash manzili: {log.state['location']}\n\n🏢Talim muassasasi: {log.state['education']}\n\n💼Loyiha nomi: {log.state['project_name']}")
         os.remove(f"files/{log.state['filename']}")
         if log.state['region'] == REGIONS[0]:
             update.message.reply_text("Pasda berilgan kanalga obuna bo'lishingizni so'raymiz👇\n\n\nhttps://t.me/+D06Ds9jB38YxNmY6")
@@ -173,6 +172,7 @@ def received_message(update: Update, context: CallbackContext):
         update.message.reply_text("Barcha malumotlar yozib olindi✅", reply_markup=ReplyKeyboardRemove())
 
     elif log.state['state'] == 9 and msg == "Yo'q":
+        os.remove(f"files/{log.state['filename']}")
         log.state = {'state': 0}
         update.message.reply_text("Bekor qlindi❌")
         update.message.reply_text("Boshqatan boshlash uchun /start buyrug'ini bosing", reply_markup=ReplyKeyboardRemove())
@@ -211,7 +211,6 @@ def received_file(update: Update, context: CallbackContext):
 📞Telefon raqam: {log.state['phone_number']}\n\n
 🏢Talim muassasasi: {log.state['education']}\n\n
 💼Loyiha nomi: {log.state['project_name']}\n\n
-✍Loyihani qisqacha mazmuni: {log.state['description']}\n\n
 """
         # update.message.reply_text(result)
         log.state['state'] = 9

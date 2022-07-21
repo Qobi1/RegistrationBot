@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static  %}
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static './style.css'%}">
+    <title>Namanganliklar 24 | Contact</title>
+</head>
+<body>
+    <main class="main">
+        <section class="contact-us-container">
+            <div class="container">
+                
+                <div class="main-wrapper">
+                    <div class="contact-left">
+                        <h2 class="contact-left-heading">Registratsiya</h2>
+
+                        <form class="contact-form" action="" enctype="multipart/form-data" method="post">
+                            {% csrf_token %}
+                            <div class="wrapper">
+                                <input class="contacts-input user-name" type="text" id="user-name" placeholder="Ism" name="full_name" required>
+                                
+                            </div>
+                            
+                            <select class="contacts-input user-email" name="region" id="">
+                                <option disabled selected value="1">Viloyatni Tanlang</option>
+                                <option value="Andijon 18-19 iyul">Andijon 18-19 iyul</option>
+                                <option value="Farg'ona 22-23 iyul">Farg'ona 22-23 iyul</option>
+                                <option value="Namangan 20-21 iyul">Namangan 20-21 iyul</option>
+                                <option value="Toshkent viloyat 18-19 sentabr">Toshkent viloyat 18-19 sentabr</option>
+                                <option value="Sirdaryo 15-16 sentabr">Sirdaryo 15-16 sentabr</option>
+                                <option value="Jizzax 11-12 avgust">Jizzax 11-12 avgust</option>
+                                <option value="Samarqand 8-9 avgust">Samarqand 8-9 avgust</option>
+                                <option value="Qashqadaryo 8-9 sentabr">Qashqadaryo 8-9 sentabr</option>
+                                <option value="Surxondaryo 11-12 sentabr">Surxondaryo 11-12 sentabr</option>
+                                <option value="Buxoro 7-8 avgust">Buxoro 7-8 avgust</option>
+                                <option value="Navoiy 4-5 avgust">Navoiy 4-5 avgust</option>
+                                <option value="Xorazm 28-29 iyul">Xorazm 28-29 iyul</option>
+                                <option value="Qoraqalpog'iston Respublikasi">Qoraqalpog'iston Respublikasi</option>
+                            </select>
+
+                            <p class="title-project">Tugulgan Yili</p>
+
+                            <input class="contacts-input" type="date" name="birthday">
+                            
+                            <input class="contacts-input" type="text" id="user-location" placeholder="Manzilingizni Kiriting" name="location" required>
+
+                            <input class="contacts-input user-tel" type="tel" id="user-tel" placeholder="Telefon Raqam" name="phone_number" required>
+                            
+                            <input class="contacts-input user-edu" type="text" id="user-edu" placeholder="Ma'lumotingiz" name="education" title="Oliy, O'rta, O'rta maxsus" required>
+
+                            <input class="contacts-input" type="text" id="user-project-name" placeholder="Proyekt nomi" name="project_name" required>
+                            
+                            <textarea class="contacts-input user-area" name="description" id="user-area" rows="5" placeholder="Proyektingiz haqida qisqa ma'lumot" required></textarea>
+
+                            <p class="title-project">Proyekt Faylini Joylang</p>
+                            
+                            <input class="contacts-input user-file" type="file" id="user-file" name="file" required>
+                            
+                            <button class="contact-submit-btn" type="submit">Ro'yhatdan O'tish</button>
+                        </form>
+                    </div>
+                </div>
+                
+            </div>
+        </section>
+    </main>
+    
+    </body>
+    </html>
